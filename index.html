@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Flow - Personal Money Tracker</title>
+    <link rel="stylesheet" href="finance-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <h1 class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M16 8L20 12L16 16L12 12L16 8Z" fill="white" opacity="0.9"/>
+                    <path d="M16 16L20 20L16 24L12 20L16 16Z" fill="white" opacity="0.6"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#10b981"/>
+                            <stop offset="100%" stop-color="#059669"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                Finance Flow
+            </h1>
+            <div class="header-actions">
+                <button id="settings-btn" class="icon-btn" aria-label="Settings">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                    </svg>
+                </button>
+                <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">
+                    <svg class="theme-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view active">
+                <div class="view-header">
+                    <h2>Dashboard</h2>
+                    <div class="date-display" id="current-date"></div>
+                </div>
+
+                <!-- Balance Overview -->
+                <div class="balance-overview">
+                    <div class="balance-card total">
+                        <div class="balance-label">Total Balance</div>
+                        <div class="balance-amount" id="total-balance">$0.00</div>
+                    </div>
+                    <div class="balance-card income">
+                        <div class="balance-label">This Month Income</div>
+                        <div class="balance-amount" id="month-income">$0.00</div>
+                    </div>
+                    <div class="balance-card expense">
+                        <div class="balance-label">This Month Expenses</div>
+                        <div class="balance-amount" id="month-expenses">$0.00</div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div id="quick-stats" class="stats-grid"></div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h3>Spending by Category</h3>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Income vs Expenses</h3>
+                        <canvas id="incomeExpenseChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div id="recent-transactions" class="transactions-list">
+                    <h3>Recent Transactions</h3>
+                    <div id="transactions-container"></div>
+                </div>
+
+                <!-- Budget Overview -->
+                <div id="budget-overview" class="budget-overview"></div>
+            </div>
+
+            <!-- Add Transaction View -->
+            <div id="add-view" class="view">
+                <div class="view-header">
+                    <h2>Add Transaction</h2>
+                </div>
+                
+                <form id="transaction-form" class="transaction-form">
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="trans-type">Transaction Type</label>
+                            <div class="button-group">
+                                <button type="button" class="option-btn active" data-type="expense">Expense</button>
+                                <button type="button" class="option-btn" data-type="income">Income</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="trans-date">Date</label>
+                                <input type="date" id="trans-date" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="trans-amount">Amount</label>
+                                <input type="number" id="trans-amount" step="0.01" placeholder="0.00" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="trans-category">Category</label>
+                                <select id="trans-category" required>
+                                    <option value="">Select Category</option>
+                                    <optgroup label="Expenses">
+                                        <option value="Food & Dining">Food & Dining</option>
+                                        <option value="Transportation">Transportation</option>
+                                        <option value="Shopping">Shopping</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Bills & Utilities">Bills & Utilities</option>
+                                        <option value="Healthcare">Healthcare</option>
+                                        <option value="Housing">Housing</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Personal Care">Personal Care</option>
+                                        <option value="Other Expense">Other Expense</option>
+                                    </optgroup>
+                                    <optgroup label="Income">
+                                        <option value="Salary">Salary</option>
+                                        <option value="Freelance">Freelance</option>
+                                        <option value="Investment">Investment</option>
+                                        <option value="Gift">Gift</option>
+                                        <option value="Other Income">Other Income</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="trans-payment">Payment Method</label>
+                                <select id="trans-payment">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Debit Card">Debit Card</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Digital Wallet">Digital Wallet</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="trans-description">Description</label>
+                            <input type="text" id="trans-description" placeholder="Brief description (optional)">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="trans-notes">Notes</label>
+                            <textarea id="trans-notes" class="notes-textarea" placeholder="Additional notes (optional)"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Add Transaction</button>
+                </form>
+            </div>
+
+            <!-- Transactions View -->
+            <div id="transactions-view" class="view">
+                <div class="view-header">
+                    <h2>All Transactions</h2>
+                    <p class="view-subtitle">View and manage your transaction history</p>
+                </div>
+
+                <div class="filter-bar">
+                    <select id="filter-type" class="filter-select">
+                        <option value="all">All Types</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expenses</option>
+                    </select>
+
+                    <select id="filter-category" class="filter-select">
+                        <option value="all">All Categories</option>
+                    </select>
+
+                    <select id="filter-period" class="filter-select">
+                        <option value="all">All Time</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="365">This Year</option>
+                    </select>
+                </div>
+
+                <div id="all-transactions" class="transactions-list-full"></div>
+            </div>
+
+            <!-- Budget View -->
+            <div id="budget-view" class="view">
+                <div class="view-header">
+                    <h2>Budget Management</h2>
+                    <p class="view-subtitle">Set and track your spending limits</p>
+                </div>
+
+                <button id="add-budget-btn" class="btn-primary mb-4">+ Add Budget</button>
+
+                <div id="budgets-container" class="budgets-container"></div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analytics-view" class="view">
+                <div class="view-header">
+                    <h2>Analytics & Insights</h2>
+                    <p class="view-subtitle">Detailed financial analysis</p>
+                </div>
+
+                <div class="period-selector">
+                    <button class="period-btn active" data-period="30">30 Days</button>
+                    <button class="period-btn" data-period="90">90 Days</button>
+                    <button class="period-btn" data-period="365">This Year</button>
+                    <button class="period-btn" data-period="all">All Time</button>
+                </div>
+                
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Monthly Trends</h3>
+                        <canvas id="monthlyTrendsChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Category Breakdown</h3>
+                        <canvas id="categoryBreakdownChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Daily Average Spending</h3>
+                        <canvas id="dailySpendingChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Payment Methods</h3>
+                        <canvas id="paymentMethodsChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Income Sources</h3>
+                        <canvas id="incomeSourcesChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Savings Rate</h3>
+                        <canvas id="savingsRateChart"></canvas>
+                    </div>
+                </div>
+
+                <div id="analytics-summary" class="stats-summary"></div>
+            </div>
+
+            <!-- Import View -->
+            <div id="import-view" class="view">
+                <div class="view-header">
+                    <h2>Import Transactions</h2>
+                    <p class="view-subtitle">Upload Excel/CSV files to bulk import transactions</p>
+                </div>
+
+                <div class="import-section">
+                    <div class="import-card">
+                        <div class="import-icon">📊</div>
+                        <h3>Upload Excel or CSV File</h3>
+                        <p>Your file should have columns: Date, Amount, Category, Description, Type (income/expense)</p>
+                        
+                        <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display: none;">
+                        <button id="upload-btn" class="btn-primary">Choose File</button>
+                        
+                        <div id="file-info" class="file-info"></div>
+                    </div>
+
+                    <div class="import-card">
+                        <div class="import-icon">📋</div>
+                        <h3>File Format Guide</h3>
+                        <div class="format-guide">
+                            <p><strong>Required Columns:</strong></p>
+                            <ul>
+                                <li><code>Date</code> - Format: YYYY-MM-DD or MM/DD/YYYY</li>
+                                <li><code>Amount</code> - Numeric value (positive)</li>
+                                <li><code>Category</code> - Category name</li>
+                                <li><code>Type</code> - "income" or "expense"</li>
+                            </ul>
+                            <p><strong>Optional Columns:</strong></p>
+                            <ul>
+                                <li><code>Description</code> - Transaction description</li>
+                                <li><code>Payment Method</code> - How you paid</li>
+                                <li><code>Notes</code> - Additional notes</li>
+                            </ul>
+                        </div>
+                        <button id="download-template-btn" class="btn-secondary">Download Template</button>
+                    </div>
+                </div>
+
+                <div id="import-preview" class="import-preview"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-view="dashboard">
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-btn" data-view="add">
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span class="nav-label">Add</span>
+        </button>
+        <button class="nav-btn" data-view="transactions">
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+            <span class="nav-label">History</span>
+        </button>
+        <button class="nav-btn" data-view="analytics">
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span class="nav-label">Analytics</span>
+        </button>
+        <button class="nav-btn" data-view="budget">
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+            <span class="nav-label">Budget</span>
+        </button>
+    </nav>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <h3>Settings & Data</h3>
+            
+            <div class="settings-section">
+                <h4>Data Management</h4>
+                <button id="export-btn" class="btn-primary full-width mb-2">📥 Export All Data (JSON)</button>
+                <button id="import-json-btn" class="btn-secondary full-width mb-2">📤 Import Data (JSON)</button>
+                <input type="file" id="import-json-file" accept=".json" style="display: none;">
+                
+                <button id="clear-data-btn" class="btn-danger full-width mt-4">🗑️ Clear All Data</button>
+            </div>
+
+            <div class="settings-section">
+                <h4>Statistics</h4>
+                <div id="app-stats"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Budget Modal -->
+    <div id="budget-modal" class="modal">
+        <div class="modal-content modal-small">
+            <button class="close-modal" id="close-budget-modal">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <h3>Create Budget</h3>
+            <form id="add-budget-form">
+                <div class="form-group">
+                    <label for="budget-category">Category</label>
+                    <select id="budget-category" required>
+                        <option value="">Select Category</option>
+                        <option value="Food & Dining">Food & Dining</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Bills & Utilities">Bills & Utilities</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Housing">Housing</option>
+                        <option value="Education">Education</option>
+                        <option value="Personal Care">Personal Care</option>
+                        <option value="Other Expense">Other Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="budget-amount">Monthly Limit</label>
+                    <input type="number" id="budget-amount" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancel-budget">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Budget</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="finance-app.js"></script>
+</body>
+</html>
